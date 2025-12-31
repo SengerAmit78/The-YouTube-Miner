@@ -1,0 +1,13 @@
+[run]
+omit =
+    src/main.py
+    */main.py
+    */cli.py
+    backend/runs/*
+    # Add additional entrypoints/utilities or migration/scripts here as needed
+
+[report]
+exclude_lines =
+    if __name__ == .__main__.
+    pragma: no cover
+

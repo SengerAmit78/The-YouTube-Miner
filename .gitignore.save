@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+
+# Node
+node_modules/
+
+# Build
+dist/
+build/
+
+# Media
+*.mp4
+*.wav
+*.mp3
+
+# Models
+*.bin
+*.pt
+*.onnx
+*.npy
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+

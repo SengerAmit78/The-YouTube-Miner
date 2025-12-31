@@ -1,0 +1,9 @@
+# Existing requirements (append to your current file as needed; sample below)
+torch
+soundfile
+webvtt-py
+faster-whisper
+sentence-transformers
+scikit-learn
+fastapi
+uvicorn
