@@ -1,5 +1,8 @@
 # The YouTube Miner
 
+## Version
+v1.0.1
+
 ## 1. Project Overview
 
 **The YouTube Miner** is a full-stack, open-source platform to extract, segment, transcribe, and compare human speech from YouTube videos. It automates download, VAD, chunking, ASR (Whisper), and caption benchmarking with both a CLI and a web UI. Extensively tested, modular, and research/demo ready.
