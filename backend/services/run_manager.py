@@ -3,9 +3,9 @@ import time
 from typing import Dict, Any
 from backend.services.pipeline_wrapper import run_initial_pipeline, PipelineRunError
 from backend.services.storage import save_run_state, load_run_state
+from backend.config import PIPELINE_STEPS
 
 run_states: Dict[str, Dict[str, Any]] = {}
-PIPELINE_STEPS = ["downloading", "captioning", "vad", "chunking", "done", "error"]
 
 def update_pipeline_step(run_id: str, step: str):
     if run_id in run_states:

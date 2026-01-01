@@ -42,7 +42,8 @@
 ## 3. Technology Stack
 
 - **Languages:** Python 3.9+, TypeScript/JavaScript
-- **Backend:** FastAPI, PyTorch, yt-dlp, ffmpeg, pyannote.audio, faster-whisper, webvtt-py, sentence-transformers, scikit-learn, pytest
+- **Backend:** FastAPI, PyTorch, yt-dlp, faster-whisper, webvtt-py, sentence-transformers, scikit-learn, pytest
+- **System Tools:** ffmpeg (required for audio processing)
 - **Frontend:** React, Material-UI, React Router, Jest, React Testing Library
 - **Coverage/Testing:** pytest-cov, Jest, lcov
 - **External Services:** None — strictly offline/local processing
@@ -61,7 +62,7 @@
 │   ├── api/           # FastAPI endpoints
 │   ├── models/        # Schemas
 │   ├── services/      # Core modules (downloader, storage, etc.)
-│   ├── runs/          # Pipeline run output
+│   ├── runs/          # Run state storage (JSON files)
 │   ├── main.py, config.py, requirements.txt
 │   ├── tests/         # Backend/unit/integration tests and test artifacts
 │   │   └── fake_ch/   # Test chunk folder
@@ -100,7 +101,7 @@
 ```bash
 pip install -r requirements.txt
 # or manual:
-pip install yt-dlp pyannote.audio faster-whisper torch librosa numpy webvtt-py sentence-transformers scikit-learn fastapi uvicorn
+pip install yt-dlp faster-whisper torch librosa numpy soundfile webvtt-py sentence-transformers scikit-learn fastapi uvicorn
 ```
 Ensure ffmpeg is available in PATH.
 
@@ -134,7 +135,26 @@ UI served at http://localhost:3000
 
 ---
 
-## 8. Configuration
+## 8. Testing
+
+Run tests to verify the installation and functionality:
+
+**Backend Tests:**
+```bash
+pytest backend/tests/
+```
+
+**Frontend Tests:**
+```bash
+cd frontend
+npm test
+```
+
+For detailed testing instructions, coverage reports, and troubleshooting, see `TECHNICAL_DESIGN.md`.
+
+---
+
+## 9. Configuration
 - `backend/config.py`: Default pipeline and output settings
 - CLI options for audio sample rate, chunk duration, language, Whisper model size
 - No critical required environment variables
@@ -142,7 +162,7 @@ UI served at http://localhost:3000
 
 ---
 
-## 9. Error Handling & Limitations
+## 10. Error Handling & Limitations
 - Graceful handling of missing captions, bad downloads, VAD/ASR errors (see `/output/`/comparison.txt)
 - Chunks <25s ignored by default; batch chunking is possible but not default
 - English auto-captions assumed for demo, but language/model flags supported
@@ -150,7 +170,7 @@ UI served at http://localhost:3000
 
 ---
 
-## 10. Future Enhancements
+## 11. Future Enhancements
 - Websocket-based live status for UI
 - Full batch/multi-chunk comparison
 - Results database/history/API extensions
@@ -160,7 +180,7 @@ UI served at http://localhost:3000
 
 ---
 
-## 11. License / Notes
+## 12. License / Notes
 *Internal AI Challenge, December 2025.*
 
 See `TECHNICAL_DESIGN.md` for deep technical breakdown, detailed flow, architecture diagrams, and module documentation.

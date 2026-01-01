@@ -6,17 +6,29 @@ from src.vad import run_silero_vad, VADException
 from src.chunker import create_speech_chunks, ChunkingException
 from src.transcriber import transcribe_chunk, TranscriptionError
 from src.comparator import compare_transcripts
+from backend.config import (
+    DEFAULT_SAMPLE_RATE,
+    DEFAULT_CHUNK_DURATION,
+    DEFAULT_CHUNK_TOLERANCE,
+    DEFAULT_OUTPUT_DIR,
+    DEFAULT_MODEL_SIZE,
+    CHUNKS_DIRNAME,
+    CAPTIONS_FILENAME,
+    TRANSCRIPT_FILENAME,
+    YOUTUBE_CAPTIONS_TEXT_FILENAME,
+    COMPARISON_FILENAME
+)
 
 class PipelineRunError(Exception):
     pass
 
-def prepare_new_output_dir(run_id: str, base="output"):
+def prepare_new_output_dir(run_id: str, base=DEFAULT_OUTPUT_DIR):
     outdir = os.path.join(base, run_id)
     os.makedirs(outdir, exist_ok=True)
     return outdir
 
 # Initial run: only preprocessing, chunking, no transcription/comparison
-def run_initial_pipeline(run_id: str, youtube_url, language, model_size, sample_rate=16000, chunk_duration=30.0, base_output_dir="output", update_step_fn=None):
+def run_initial_pipeline(run_id: str, youtube_url, language, model_size, sample_rate=DEFAULT_SAMPLE_RATE, chunk_duration=DEFAULT_CHUNK_DURATION, base_output_dir=DEFAULT_OUTPUT_DIR, update_step_fn=None):
     output_dir = prepare_new_output_dir(run_id, base_output_dir)
     if update_step_fn: update_step_fn("downloading")
     audio_path = os.path.join(output_dir, "audio.wav")
@@ -30,7 +42,7 @@ def run_initial_pipeline(run_id: str, youtube_url, language, model_size, sample_
         print(f"[ERROR] Audio download failed: {e}")
         raise PipelineRunError(f"Audio download failed: {e}")
     # Download captions, but don't assume file name
-    download_captions(youtube_url, output_path=os.path.join(output_dir, "captions.vtt"), sub_lang=language)
+    download_captions(youtube_url, output_path=os.path.join(output_dir, CAPTIONS_FILENAME), sub_lang=language)
     # Find any .vtt or .srt file
     for file in os.listdir(output_dir):
         if file.endswith(".vtt") or file.endswith(".srt"):
@@ -50,14 +62,14 @@ def run_initial_pipeline(run_id: str, youtube_url, language, model_size, sample_
     except VADException as e:
         print(f"[ERROR] VAD failed: {e}")
         raise PipelineRunError(f"VAD failed: {e}")
-    chunk_dir = os.path.join(output_dir, "chunks")
+    chunk_dir = os.path.join(output_dir, CHUNKS_DIRNAME)
     try:
         print(f"[DEBUG] Creating speech chunks in {chunk_dir}")
         chunks = create_speech_chunks(
             audio_path=audio_file,
             speech_segments=speech_segments,
             chunk_duration=chunk_duration,
-            chunk_tol=5.0,
+            chunk_tol=DEFAULT_CHUNK_TOLERANCE,
             chunk_folder=chunk_dir,
             orig_sr=sample_rate
         )
@@ -97,9 +109,9 @@ def parse_compare_result(compare_result: str):
     return " ".join(asr).strip(), " ".join(caption).strip()
 
 # On-demand chunk process for transcript+compare
-def process_chunk_for_comparison(run_id: str, chunk_path: str, youtube_url: str, language: str, model_size: str, base_output_dir="output"):
+def process_chunk_for_comparison(run_id: str, chunk_path: str, youtube_url: str, language: str, model_size: str, base_output_dir=DEFAULT_OUTPUT_DIR):
     output_dir = prepare_new_output_dir(run_id, base_output_dir)
-    transcript_path = os.path.join(output_dir, "whisper_transcript.txt")
+    transcript_path = os.path.join(output_dir, TRANSCRIPT_FILENAME)
     chunk_file = os.path.normpath(chunk_path)
     print(f"[DEBUG] [PROCESS] Starting transcript & compare for CHUNK: {chunk_file}")
     # Transcribe
@@ -108,7 +120,7 @@ def process_chunk_for_comparison(run_id: str, chunk_path: str, youtube_url: str,
             chunk_file,
             output_path=transcript_path,
             language=language,
-            model_size=model_size or "tiny"
+            model_size=model_size or DEFAULT_MODEL_SIZE
         )
         with open(transcript_path, "w", encoding="utf-8") as x:
             x.write(whisper_text.strip() + "\n")
@@ -124,12 +136,12 @@ def process_chunk_for_comparison(run_id: str, chunk_path: str, youtube_url: str,
             break
     if not captions_file or not os.path.exists(captions_file):
         raise PipelineRunError("No caption file (.vtt or .srt) found for comparison.")
-    caption_text_path = os.path.join(output_dir, "youtube_captions.txt")
+    caption_text_path = os.path.join(output_dir, YOUTUBE_CAPTIONS_TEXT_FILENAME)
     if not os.path.exists(caption_text_path):
         extract_captions_text(captions_file, text_output=caption_text_path)
     with open(caption_text_path, "r", encoding="utf-8") as f:
         captions_text = f.read()
-    compare_path = os.path.join(output_dir, "comparison.txt")
+    compare_path = os.path.join(output_dir, COMPARISON_FILENAME)
     compare_transcripts(whisper_text, captions_text, output_path=compare_path)
     compare_result = None
     similarity_percent = None

@@ -2,6 +2,7 @@ import os
 from fastapi import APIRouter, Request
 from backend.services.run_manager import get_run_result
 from backend.services.pipeline_wrapper import process_chunk_for_comparison, PipelineRunError
+from backend.config import DEFAULT_LANGUAGE, DEFAULT_MODEL_SIZE, CHUNKS_DIRNAME, TRANSCRIPT_FILENAME
 
 router = APIRouter(prefix="/result", tags=["result"])
 
@@ -26,14 +27,14 @@ def get_result(run_id: str):
                 caption_url = f"/output/{base_name}/{file}"
 
     chunkFiles = []
-    chunk_dir = os.path.join(output_dir, "chunks")
+    chunk_dir = os.path.join(output_dir, CHUNKS_DIRNAME)
     if os.path.isdir(chunk_dir):
         for file in sorted(os.listdir(chunk_dir)):
             if file.endswith('.wav'):
-                chunkFiles.append(f"/output/{base_name}/chunks/{file}")
+                chunkFiles.append(f"/output/{base_name}/{CHUNKS_DIRNAME}/{file}")
 
     # Transcript download URL (shown only if file exists)
-    transcript_path = os.path.join(output_dir, "whisper_transcript.txt")
+    transcript_path = os.path.join(output_dir, TRANSCRIPT_FILENAME)
     transcript_url = None
     if os.path.exists(transcript_path):
         transcript_url = f"/output/{base_name}/whisper_transcript.txt"
@@ -62,21 +63,21 @@ async def process_chunk(run_id: str, request: Request):
         meta = get_run_result(run_id)
         chunk_filename = os.path.basename(chunk_path)
         output_dir = meta.get("output_dir")
-        full_chunk_path = os.path.join(output_dir, "chunks", chunk_filename)
+        full_chunk_path = os.path.join(output_dir, CHUNKS_DIRNAME, chunk_filename)
         print(f"[DEBUG] Calling process_chunk_for_comparison with: chunk={full_chunk_path}, run_id={run_id}, youtube_url={meta['args'].get('youtube_url')}")
         cmp_result = process_chunk_for_comparison(
             run_id=run_id,
             chunk_path=full_chunk_path,
             youtube_url=meta['args'].get('youtube_url'),
-            language=meta['args'].get('language', 'en'),
-            model_size=meta['args'].get('model_size', 'tiny'),
+            language=meta['args'].get('language', DEFAULT_LANGUAGE),
+            model_size=meta['args'].get('model_size', DEFAULT_MODEL_SIZE),
         )
         print(f"[DEBUG] Chunk processing complete. Result: {cmp_result}")
         transcript_url = None
         transcript_path = cmp_result.get('transcript_file')
         if transcript_path and os.path.exists(transcript_path):
             base_name = os.path.basename(output_dir)
-            transcript_url = f"/output/{base_name}/whisper_transcript.txt"
+            transcript_url = f"/output/{base_name}/{TRANSCRIPT_FILENAME}"
         return {
             "compare_text": cmp_result.get("compare_text"),
             "similarity_percent": cmp_result.get("similarity_percent"),
