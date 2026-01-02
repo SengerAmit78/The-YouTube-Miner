@@ -11,6 +11,18 @@ v1.0.3
 
 **Problem Statement:** YouTube captions are often inaccurate. This pipeline provides automated, local, auditable benchmarking with robust test coverage.
 
+**Hackathon Track:** Track 3 
+
+**Task Name:** "The YouTube Miner" (Data Pipeline)
+
+**Task Details:**
+Write a Python script that takes a YouTube URL (e.g., a specific podcast episode), and does three things automatically:
+1. Downloads the audio
+2. Uses VAD (Voice Activity Detection) to chop it into clean 30-second chunks (removing silence/music)
+3. Transcribes one chunk using a distinct Open Source model (like Whisper-Tiny) and compares it to the YouTube auto-captions
+
+**Constraint:** No paid APIs. Use open-source libraries (yt-dlp, faster-whisper, Silero VAD).
+
 **Target users:** Hackathon teams, ML researchers, developers, open-source contributors, accessibility analysts.
 
 **High-level workflow:**
@@ -44,7 +56,7 @@ v1.0.3
 - **System Tools:** ffmpeg (required for audio processing)
 - **Frontend:** React, Material-UI, React Router, Jest, React Testing Library
 - **Coverage/Testing:** pytest-cov, Jest, lcov
-- **External Services:** None — strictly offline/local processing
+- **External Services:** None — strictly offline/local processing (no paid APIs, open-source only)
 - **ML/AI Models:**
   - **VAD:** Silero VAD
   - **ASR:** Whisper-Tiny (faster-whisper; CPU+GPU)
