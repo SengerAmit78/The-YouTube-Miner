@@ -26,11 +26,6 @@ v1.0.1
 - **Frontend (React/TypeScript):** Submit jobs, check status, view/download results.
 - **Service modules:** Modular downloader, VAD, chunker, transcriber, comparator – all mock/test-capable.
 - **Testing:** Full suite using Pytest, coverage, RTL/Jest for frontend.
-
-**System Flow:**
-
-![System Architecture](image/FlowChart.png)
-
 - **User** → **Frontend** → **API** → **Pipeline services** → **Output/Results**
 - CLI flow: Directly invokes modules via `src.main`
 
@@ -66,17 +61,38 @@ v1.0.1
 │   ├── models/        # Schemas
 │   ├── services/      # Core modules (downloader, storage, etc.)
 │   ├── runs/          # Run state storage (JSON files)
-│   ├── main.py, config.py, requirements.txt
 │   ├── tests/         # Backend/unit/integration tests and test artifacts
 │   │   └── fake_ch/   # Test chunk folder
-├── src/               # Main backend (chunker.py, downloader.py, vad.py, ...)
+│   ├── htmlcov/       # Test coverage reports
+│   ├── Dockerfile     # Backend Docker configuration
+│   ├── main.py        # FastAPI app initialization
+│   ├── config.py      # Centralized configuration
+│   └── requirements.txt
+├── src/               # Core pipeline modules (shared by CLI and API)
+│   ├── downloader.py  # Audio/caption download
+│   ├── vad.py         # Voice Activity Detection (Silero)
+│   ├── chunker.py     # Audio chunking
+│   ├── transcriber.py # Whisper transcription
+│   ├── comparator.py  # Transcript comparison
+│   └── main.py        # CLI entry point
 ├── frontend/
-│   ├── src/pages, components, services, theme.ts
-│   ├── coverage/      # Jest/RTL frontend coverage HTML
+│   ├── src/
+│   │   ├── pages/     # Main views (run, results, history)
+│   │   ├── components/ # Reusable UI components
+│   │   ├── services/  # API integration layer
+│   │   └── theme.ts   # Material-UI theme
+│   ├── Dockerfile     # Frontend Docker configuration
+│   ├── nginx.conf     # Nginx proxy configuration for API
+│   └── coverage/      # Jest/RTL frontend coverage HTML
+├── doc/               # Documentation
+│   ├── TECHNICAL_DESIGN.md
+│   └── System_Architecture.md
 ├── output/            # Pipeline output (audio, transcripts, diffs, etc)
-├── .cursor/debug.log  # Pipeline debug log file
-├── architecture.png, image/FlowChart.png  # System flow diagrams
-├── README.md, TECHNICAL_DESIGN.md
+├── image/             # System flow diagrams and architecture images
+├── docker-compose.yml # Docker Compose configuration
+├── pytest.ini         # Pytest configuration
+├── requirements.txt   # Root Python dependencies
+└── README.md
 ```
 
 ---
@@ -153,7 +169,7 @@ cd frontend
 npm test
 ```
 
-For detailed testing instructions, coverage reports, and troubleshooting, see `TECHNICAL_DESIGN.md`.
+For detailed testing instructions, coverage reports, and troubleshooting, see [TECHNICAL_DESIGN.md](doc/TECHNICAL_DESIGN.md).
 
 ---
 
@@ -161,7 +177,9 @@ For detailed testing instructions, coverage reports, and troubleshooting, see `T
 - `backend/config.py`: Default pipeline and output settings
 - CLI options for audio sample rate, chunk duration, language, Whisper model size
 - No critical required environment variables
-- Docker configuration available (optional; see technical_design.md)
+- Docker configuration available (optional; see [TECHNICAL_DESIGN.md](doc/TECHNICAL_DESIGN.md))
+  - Frontend includes nginx proxy configuration for API communication
+  - Backend includes system dependencies (curl, wget, ca-certificates) for yt-dlp
 
 ---
 
@@ -183,7 +201,59 @@ For detailed testing instructions, coverage reports, and troubleshooting, see `T
 
 ---
 
-## 12. License / Notes
-*Internal AI Challenge, December 2025.*
+## 12. Documentation
 
-See `TECHNICAL_DESIGN.md` for deep technical breakdown, detailed flow, architecture diagrams, and module documentation.
+The YouTube Miner project maintains three complementary documents:
+
+### README.md (This Document)
+- Project overview and onboarding
+- Quick start guide and setup instructions
+- Basic system flow and architecture overview
+- Technology stack and configuration
+- **Document relationships and usage patterns** (see below)
+
+### [TECHNICAL_DESIGN.md](doc/TECHNICAL_DESIGN.md)
+- Detailed implementation logic and code structure
+- Complete API endpoint specifications
+- Pipeline workflow details (step-by-step)
+- Testing strategies and coverage reports
+- Docker setup and deployment commands
+- Design decisions and rationale
+
+**Audience**: Developers implementing features, debugging, understanding codebase
+
+### [System_Architecture.md](doc/System_Architecture.md)
+- Architectural principles and design patterns
+- Component relationships and interactions
+- System-level design decisions
+- Scalability and extensibility considerations
+- Logical deployment architecture
+- Non-functional requirements (scalability, fault tolerance, security)
+
+**Audience**: Architects, technical leads, stakeholders making architectural decisions
+
+### Document Usage Pattern
+
+```
+README.md (Onboarding)
+    ↓
+    Provides quick start and overview
+    ↓
+[TECHNICAL_DESIGN.md](doc/TECHNICAL_DESIGN.md) (Implementation)
+    ↓
+    Provides detailed implementation guide
+    ↓
+[System_Architecture.md](doc/System_Architecture.md) (Architecture)
+    ↓
+    Provides architectural context and design rationale
+```
+
+**Recommended Usage**:
+1. **Start here** (`README.md`) for project overview, setup, and quick start
+2. Refer to [TECHNICAL_DESIGN.md](doc/TECHNICAL_DESIGN.md) for implementation details, API specs, and code structure
+3. Consult [System_Architecture.md](doc/System_Architecture.md) for architectural decisions and scalability planning
+
+---
+
+## 13. License / Notes
+*Internal AI Challenge, December 2025.*

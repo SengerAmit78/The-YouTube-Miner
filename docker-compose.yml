@@ -1,0 +1,45 @@
+# Docker Compose configuration for YouTube Miner Full Stack
+# Runs both backend and frontend services together
+
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: youtube-miner-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount output directory for persistent storage
+      - ./output:/app/output
+      # Mount runs directory for persistent state
+      - ./backend/runs:/app/backend/runs
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: youtube-miner-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+

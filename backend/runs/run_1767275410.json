@@ -1,0 +1,1 @@
+{"step": "error", "error": "Audio download failed: Audio download/convert failed: yt-dlp failed to download audio in both bestaudio and mp4 format.", "result": null, "args": {"youtube_url": "https://www.youtube.com/watch?v=5MgBikgcWnY ", "language": "en", "model_size": "tiny", "chunk_index": 0}}
