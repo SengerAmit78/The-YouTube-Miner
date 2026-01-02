@@ -1,7 +1,7 @@
 # The YouTube Miner
 
 ## Version
-v1.0.2
+v1.0.3
 
 ## 1. Project Overview
 
@@ -117,11 +117,26 @@ v1.0.2
 - Node.js (18+), npm
 
 ### Backend Installation
+
+**Note:** Virtual environment (`venv/`) is not included in the repository. You should create your own virtual environment before installing dependencies. See [TECHNICAL_DESIGN.md](doc/TECHNICAL_DESIGN.md) for detailed virtual environment setup instructions.
+
+**Quick Setup:**
 ```bash
+# Create virtual environment (recommended)
+python3 -m venv venv
+
+# Activate virtual environment
+# On macOS/Linux:
+source venv/bin/activate
+# On Windows:
+# venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 # or manual:
 pip install yt-dlp faster-whisper torch librosa numpy soundfile webvtt-py sentence-transformers scikit-learn fastapi uvicorn
 ```
+
 Ensure ffmpeg is available in PATH.
 
 ### Frontend Installation
