@@ -1,7 +1,7 @@
 # The YouTube Miner
 
 ## Version
-v1.0.1
+v1.0.2
 
 ## 1. Project Overview
 
